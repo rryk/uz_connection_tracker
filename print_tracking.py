@@ -17,17 +17,21 @@ else:
     f = open(uz_tools.LAST_KNOWN_SEATS_FILE, 'r')
     seats = pickle.load(f)
     f.close()
-  for conn_id in connections:
+  for conn_id in reversed(connections):
     if conn_id['num'] != 'new':
+      msg = "\n" + conn_id['num'] + ". "
+      msg += conn_id['from_actual'] + " - "
+      msg += conn_id['till_actual'] + ", "
+      from_d = timezone('UTC').localize(datetime.utcfromtimestamp(conn_id['from_date']))
+      msg += from_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + " - "
+      till_d = timezone('UTC').localize(datetime.utcfromtimestamp(conn_id['till_date']))
+      msg += till_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M')
+      if conn_id['ignored']:
+        msg += ", ignored."
+      else:
+        msg += "."
+      print msg.replace(u'\u0456', u'i')
       if not conn_id['ignored']:
-        msg = "\n" + conn_id['num'] + ". "
-        msg += conn_id['from_actual'] + " - "
-        msg += conn_id['till_actual'] + ", "
-        from_d = timezone('UTC').localize(datetime.utcfromtimestamp(conn_id['from_date']))
-        msg += from_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + " - "
-        till_d = timezone('UTC').localize(datetime.utcfromtimestamp(conn_id['till_date']))
-        msg += till_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + "."
-        print msg.replace(u'\u0456', u'i')
         conn_str = pickle.dumps(conn_id)
         if conn_str in seats:
           print "Tracked seats:"
@@ -37,6 +41,8 @@ else:
             for place in seats[conn_str][coach_num]["places"]:
               sys.stdout.write(str(place) + " ");
             sys.stdout.write("\n")
+        else:
+          print "Seats have not been retrieved yet."
     else:
       msg = "\nNew connections: ";
       msg += conn_id["from"]["title"] + " - "
