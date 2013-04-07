@@ -56,10 +56,10 @@ class TaskBarIcon(wx.TaskBarIcon):
     self.LoadConnectionsToTrack()
 
   def tell_user(self, msg):
-    wx.MessageBox(msg, 'Seat status', wx.OK | wx.ICON_INFORMATION)
+    wx.MessageBox(msg, 'UZ Tracker', wx.OK | wx.ICON_INFORMATION)
 
   def ask_user_yes_no(prompt, msg):
-    return wx.MessageBox(msg, 'Seat status', wx.YES | wx.NO | wx.ICON_QUESTION) == wx.YES
+    return wx.MessageBox(msg, 'UZ Tracker', wx.YES | wx.NO | wx.ICON_QUESTION) == wx.YES
 
   def check_new_seats(self):
     # Check for new connections
