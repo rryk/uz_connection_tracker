@@ -6,6 +6,7 @@ from datetime import datetime
 from pytz import timezone
 
 TRACKED_CONNECTIONS_FILE = 'tracked_connections'
+LAST_KNOWN_SEATS_FILE = 'last_known_seats'
 
 def query(path, data, headers):
   url = "http://booking.uz.gov.ua/" + path;
@@ -114,7 +115,7 @@ def load_seats_for_coach_type(conn_id, coach_type):
       'model': conn_id['model'],
       'date_dep': conn_id['from_date'],
       'round_trip': '0',
-      'another_ec': '1'
+      'another_ec': '0'
     },
     {
       "GV-Ajax": "1",

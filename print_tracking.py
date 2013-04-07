@@ -11,23 +11,37 @@ if not os.path.isfile(uz_tools.TRACKED_CONNECTIONS_FILE):
 else:
   f = open(uz_tools.TRACKED_CONNECTIONS_FILE, 'r')
   connections = pickle.load(f)
-  for connection in connections:
-    if connection['num'] != 'new':
-      if not connection['ignored']:
-        msg = connection['num'] + ". "
-        msg += connection['from_actual'] + " - "
-        msg += connection['till_actual'] + ", "
-        from_d = timezone('UTC').localize(datetime.utcfromtimestamp(connection['from_date']))
+  f.close()
+  seats = {}
+  if os.path.isfile(uz_tools.LAST_KNOWN_SEATS_FILE):
+    f = open(uz_tools.LAST_KNOWN_SEATS_FILE, 'r')
+    seats = pickle.load(f)
+    f.close()
+  for conn_id in connections:
+    if conn_id['num'] != 'new':
+      if not conn_id['ignored']:
+        msg = "\n" + conn_id['num'] + ". "
+        msg += conn_id['from_actual'] + " - "
+        msg += conn_id['till_actual'] + ", "
+        from_d = timezone('UTC').localize(datetime.utcfromtimestamp(conn_id['from_date']))
         msg += from_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + " - "
-        till_d = timezone('UTC').localize(datetime.utcfromtimestamp(connection['till_date']))
+        till_d = timezone('UTC').localize(datetime.utcfromtimestamp(conn_id['till_date']))
         msg += till_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + "."
         print msg.replace(u'\u0456', u'i')
+        conn_str = pickle.dumps(conn_id)
+        if conn_str in seats:
+          print "Tracked seats:"
+          for coach_num in seats[conn_str].keys():
+            sys.stdout.write("  Coach " + str(coach_num))
+            sys.stdout.write(" (" + seats[conn_str][coach_num]["type"] + "): ")
+            for place in seats[conn_str][coach_num]["places"]:
+              sys.stdout.write(str(place) + " ");
+            sys.stdout.write("\n")
     else:
-      msg = "New connections: ";
-      msg += connection["from"]["title"] + " - "
-      msg += connection["till"]["title"] + " on "
-      msg += connection["date"] + ", from "
-      msg += connection["time"] + "."
+      msg = "\nNew connections: ";
+      msg += conn_id["from"]["title"] + " - "
+      msg += conn_id["till"]["title"] + " on "
+      msg += conn_id["date"] + ", from "
+      msg += conn_id["time"] + "."
       print msg.replace(u'\u0456', u'i')
-  f.close()
 sys.stdin.readline()

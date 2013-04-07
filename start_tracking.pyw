@@ -11,7 +11,6 @@ from pytz import timezone
 
 TRAY_TOOLTIP = 'UZ Connection Tracker'
 TRAY_ICON = 'icon.png'
-LAST_KNOWN_SEATS_FILE = 'last_known_seats'
 
 def create_menu_item(menu, label, func):
   item = wx.MenuItem(menu, -1, label)
@@ -96,8 +95,8 @@ class TaskBarIcon(wx.TaskBarIcon):
         seats[conn_str] = uz_tools.load_seats(conn_id)
 
     # Load last known seat situation
-    if os.path.isfile(LAST_KNOWN_SEATS_FILE):
-      f = open(LAST_KNOWN_SEATS_FILE, 'r')
+    if os.path.isfile(uz_tools.LAST_KNOWN_SEATS_FILE):
+      f = open(uz_tools.LAST_KNOWN_SEATS_FILE, 'r')
       last_known_seats = pickle.load(f)
       f.close()
     else:
@@ -139,7 +138,7 @@ class TaskBarIcon(wx.TaskBarIcon):
       self.tell_user("New seats are available for one or more tracked connections.\n" + msg);
 
     # Store current seats as last known seat situation
-    f = open(LAST_KNOWN_SEATS_FILE, 'w')
+    f = open(uz_tools.LAST_KNOWN_SEATS_FILE, 'w')
     pickle.dump(seats, f)
     f.close()
 
