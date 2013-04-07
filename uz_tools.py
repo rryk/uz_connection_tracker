@@ -25,7 +25,7 @@ def query(path, data, headers):
     else:
       return [];
   return json_response[u'value']
-  
+
 def chooseStation(name):
   response = query("purchase/station/" + urllib.quote(name, '') + "/", {}, {});
   i = 0;
@@ -34,12 +34,12 @@ def chooseStation(name):
     print(" " + str(i) + ". " + station[u'title'].replace(u'\u0456', u'i'));
   sys.stdout.write("Choose station: ");
   res = int(sys.stdin.readline().strip())
-  return {'station_id': response[res-1][u'station_id'], 
+  return {'station_id': response[res-1][u'station_id'],
           'title': response[res-1][u'title']}
-  
+
 def query_connections(fromStation, tillStation, date, time):
   connections = query(
-    "purchase/search/", 
+    "purchase/search/",
     [
       (u'station_id_from', fromStation['station_id']),
       (u'station_id_till', tillStation['station_id']),
@@ -48,7 +48,7 @@ def query_connections(fromStation, tillStation, date, time):
       (u'date_dep', date),
       (u'time_dep', time),
       (u'search', u'')
-    ], 
+    ],
     {
       "GV-Ajax": "1",
       "GV-Referer": "http://booking.uz.gov.ua/",
@@ -62,7 +62,7 @@ def query_connections(fromStation, tillStation, date, time):
     connections[index][u'from'][u'actual'] = fromStation['title']
     connections[index][u'till'][u'actual'] = tillStation['title']
   return connections
-  
+
 def conn_id(connection, ignored=False):
   return {
     'from_station_id': connection[u'from'][u'station_id'],
@@ -77,17 +77,17 @@ def conn_id(connection, ignored=False):
     'num': connection[u'num'],
     'ignored': ignored
   }
-  
+
 def load_seats(id):
   fromStation = {
-    'station_id': id['from_station_id'], 
+    'station_id': id['from_station_id'],
     'title': id['from_actual']
   };
   tillStation = {
-    'station_id': id['till_station_id'], 
+    'station_id': id['till_station_id'],
     'title': id['till_actual']
   };
-  
+
   utc_datetime = timezone('UTC').localize(datetime.utcfromtimestamp(id['from_date']))
   ukraine_date = utc_datetime.astimezone(timezone("Europe/Kiev")).strftime("%d.%m.%Y")
   connections = query_connections(fromStation, tillStation, ukraine_date, "00:00")
@@ -102,10 +102,10 @@ def load_seats(id):
     new_seats = load_seats_for_coach_type(id, type[u'letter']);
     seats = dict(seats.items() + new_seats.items())
   return seats
-    
+
 def load_seats_for_coach_type(conn_id, coach_type):
   coaches = query(
-    'purchase/coaches/', 
+    'purchase/coaches/',
     {
       'station_id_from': conn_id['from_station_id'],
       'station_id_till': conn_id['till_station_id'],

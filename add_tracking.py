@@ -4,11 +4,11 @@ import os.path
 import uz_tools
 from datetime import datetime
 from pytz import timezone
-  
+
 def prompt(query):
   sys.stdout.write(query);
   return sys.stdin.readline().strip().decode('cp866').encode('utf-8');
- 
+
 fromStation = uz_tools.chooseStation(prompt("From: "))
 tillStation = uz_tools.chooseStation(prompt("Till: "))
 #fromStation = chooseStation("Миколаїв")
@@ -41,10 +41,10 @@ for connection in connections:
 sys.stdout.write('  Track new connections for this query? (y/n): ');
 if sys.stdin.readline().strip() == 'y':
   tracked_connections.append({
-    "num": "new", 
-    "from": fromStation, 
-    "till": tillStation, 
-    "date": date, 
+    "num": "new",
+    "from": fromStation,
+    "till": tillStation,
+    "date": date,
     "time": time
   });
 

@@ -18,7 +18,7 @@ def create_menu_item(menu, label, func):
   menu.Bind(wx.EVT_MENU, func, id=item.GetId())
   menu.AppendItem(item)
   return item
-    
+
 class TaskBarIcon(wx.TaskBarIcon):
   def __init__(self):
     super(TaskBarIcon, self).__init__()
@@ -36,7 +36,7 @@ class TaskBarIcon(wx.TaskBarIcon):
     else:
       self.tracked_connections = []
       self.tell_user("No connections to track");
-      
+
   def CreatePopupMenu(self):
     menu = wx.Menu()
     create_menu_item(menu, 'Check', self.on_check)
@@ -48,25 +48,25 @@ class TaskBarIcon(wx.TaskBarIcon):
   def set_icon(self, path):
     icon = wx.IconFromBitmap(wx.Bitmap(path))
     self.SetIcon(icon, TRAY_TOOLTIP)
-  
+
   def list_connections(self, event):
     os.system('python print_tracking.py')
-  
+
   def add_connections(self, event):
     os.system('python add_tracking.py')
     self.LoadConnectionsToTrack()
 
   def tell_user(self, msg):
     wx.MessageBox(msg, 'Seat status', wx.OK | wx.ICON_INFORMATION)
-  
+
   def ask_user_yes_no(prompt, msg):
     return wx.MessageBox(msg, 'Seat status', wx.YES | wx.NO | wx.ICON_QUESTION) == wx.YES
-  
+
   def check_new_seats(self):
     # Check for new connections
     for conn_id in self.tracked_connections:
       if conn_id['num'] == 'new':
-        new_connections = uz_tools.query_connections(conn_id['from'], conn_id['till'], 
+        new_connections = uz_tools.query_connections(conn_id['from'], conn_id['till'],
                                                      conn_id['date'], conn_id['time']);
         for connection in new_connections:
           if not uz_tools.conn_id(connection, True) in self.tracked_connections and \
@@ -87,14 +87,14 @@ class TaskBarIcon(wx.TaskBarIcon):
             f = open(uz_tools.TRACKED_CONNECTIONS_FILE, 'w')
             pickle.dump(self.tracked_connections, f)
             f.close()
-    
+
     # Load current seats
     seats = {}
     for conn_id in self.tracked_connections:
       if conn_id['num'] != 'new' and not conn_id['ignored']:
         conn_str = pickle.dumps(conn_id)
         seats[conn_str] = uz_tools.load_seats(conn_id)
-    
+
     # Load last known seat situation
     if os.path.isfile(LAST_KNOWN_SEATS_FILE):
       f = open(LAST_KNOWN_SEATS_FILE, 'r')
@@ -102,7 +102,7 @@ class TaskBarIcon(wx.TaskBarIcon):
       f.close()
     else:
       last_known_seats = {}
-    
+
     # Notify user about new seats if any
     have_new_seats = False
     msg = ""
@@ -134,28 +134,28 @@ class TaskBarIcon(wx.TaskBarIcon):
             msg += str(place) + " "
           msg += "\n"
         have_new_seats = True
-        
+
     if have_new_seats:
       self.tell_user("New seats are available for one or more tracked connections.\n" + msg);
-    
+
     # Store current seats as last known seat situation
     f = open(LAST_KNOWN_SEATS_FILE, 'w')
     pickle.dump(seats, f)
     f.close()
-    
+
     return have_new_seats
-  
+
   def on_check(self, event):
     if not self.check_new_seats():
       self.tell_user('No new seats available');
 
   def on_exit(self, event):
     wx.CallAfter(self.Destroy)
-        
+
 def main():
   app = wx.PySimpleApp()
   TaskBarIcon()
   app.MainLoop()
-    
+
 if __name__ == '__main__':
   main()
