@@ -2,7 +2,8 @@ import urllib
 import urllib2
 import json
 import sys
-from datetime import date
+from datetime import datetime
+from pytz import timezone
 
 TRACKED_CONNECTIONS_FILE = 'tracked_connections'
 
@@ -86,8 +87,10 @@ def load_seats(id):
     'station_id': id['till_station_id'], 
     'title': id['till_actual']
   };
-  d = date.fromtimestamp(id['from_date'])
-  connections = query_connections(fromStation, tillStation, d.strftime("%d.%m.%Y"), "00:00")
+  
+  utc_datetime = timezone('UTC').localize(datetime.utcfromtimestamp(id['from_date']))
+  ukraine_date = utc_datetime.astimezone(timezone("Europe/Kiev")).strftime("%d.%m.%Y")
+  connections = query_connections(fromStation, tillStation, ukraine_date, "00:00")
   full_connection = None
   for connection in connections:
     if conn_id(connection) == id:

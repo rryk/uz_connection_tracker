@@ -4,6 +4,7 @@ import pickle
 import os.path
 from pprint import pprint
 from datetime import datetime
+from pytz import timezone
 
 if not os.path.isfile(uz_tools.TRACKED_CONNECTIONS_FILE):
   print "No tracked connections."
@@ -16,8 +17,10 @@ else:
         msg = connection['num'] + ". "
         msg += connection['from_actual'] + " - "
         msg += connection['till_actual'] + ", "
-        msg += datetime.fromtimestamp(connection['from_date']).strftime('%d.%m.%Y %H:%M') + " - "
-        msg += datetime.fromtimestamp(connection['till_date']).strftime('%d.%m.%Y %H:%M') + "."
+        from_d = timezone('UTC').localize(datetime.utcfromtimestamp(connection['from_date']))
+        msg += from_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + " - "
+        till_d = timezone('UTC').localize(datetime.utcfromtimestamp(connection['till_date']))
+        msg += till_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + "."
         print msg.replace(u'\u0456', u'i')
     else:
       msg = "New connections: ";

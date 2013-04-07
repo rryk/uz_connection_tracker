@@ -3,6 +3,7 @@ import pickle
 import os.path
 import uz_tools
 from datetime import datetime
+from pytz import timezone
   
 def prompt(query):
   sys.stdout.write(query);
@@ -26,17 +27,26 @@ for connection in connections:
   prompt += connection[u'num'] + ". "
   prompt += connection[u'from'][u'actual'] + " - "
   prompt += connection[u'till'][u'actual'] + ", "
-  prompt += datetime.fromtimestamp(connection[u'from'][u'date']).strftime('%d.%m.%Y %H:%M') + " - "
-  prompt += datetime.fromtimestamp(connection[u'till'][u'date']).strftime('%d.%m.%Y %H:%M') + " (y/n): "
+  from_d = timezone('UTC').localize(datetime.utcfromtimestamp(connection[u'from'][u'date']))
+  prompt += from_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M') + " - "
+  till_d = timezone('UTC').localize(datetime.utcfromtimestamp(connection[u'till'][u'date']))
+  prompt += till_d.astimezone(timezone("Europe/Kiev")).strftime('%d.%m.%Y %H:%M')
+  prompt += " (y/n): "
   sys.stdout.write(prompt.replace(u'\u0456', u'i'))
   if sys.stdin.readline().strip() == 'y':
     tracked_connections.append(uz_tools.conn_id(connection));
   else:
     tracked_connections.append(uz_tools.conn_id(connection, True));
 
-sys.stdout.write('  Track new connections? (y/n): ');
+sys.stdout.write('  Track new connections for this query? (y/n): ');
 if sys.stdin.readline().strip() == 'y':
-  tracked_connections.append({"num": "new", "from": fromStation, "till": tillStation, "date": date, "time": time});
+  tracked_connections.append({
+    "num": "new", 
+    "from": fromStation, 
+    "till": tillStation, 
+    "date": date, 
+    "time": time
+  });
 
 if os.path.isfile(uz_tools.TRACKED_CONNECTIONS_FILE):
   f = open(uz_tools.TRACKED_CONNECTIONS_FILE, 'r');
