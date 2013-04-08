@@ -102,12 +102,10 @@ class TaskBarIcon(wx.TaskBarIcon):
     else:
       last_known_seats = {}
 
-    # Store current seats as last known seat situation
-    f = open(uz_tools.LAST_KNOWN_SEATS_FILE, 'w')
-    pickle.dump(seats, f)
-    f.close()
+    # Preserve the current seat situation to be saved as last known seat situation later
+    seats_serialized = pickle.dumps(seats)
 
-    # Notify user about new seats if any
+    # Find and if any - notify the user about them
     have_new_seats = False
     msg = ""
     for conn_id in self.tracked_connections:
@@ -138,9 +136,13 @@ class TaskBarIcon(wx.TaskBarIcon):
             msg += str(place) + " "
           msg += "\n"
         have_new_seats = True
-
     if have_new_seats:
       self.tell_user("New seats are available for one or more tracked connections.\n" + msg);
+
+    # Store current seats as last known seat situation
+    f = open(uz_tools.LAST_KNOWN_SEATS_FILE, 'w')
+    f.write(seats_serialized);
+    f.close()
 
     return have_new_seats
 
