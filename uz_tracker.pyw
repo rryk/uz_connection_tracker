@@ -24,6 +24,7 @@ class TaskBarIcon(wx.TaskBarIcon):
     self.set_icon(TRAY_ICON)
     self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.on_check)
     self.timer = None
+    self.status = "No last check"
     self.LoadConnectionsToTrack()
     self.CheckForNewSeats()
 
@@ -38,6 +39,8 @@ class TaskBarIcon(wx.TaskBarIcon):
 
   def CreatePopupMenu(self):
     menu = wx.Menu()
+    create_menu_item(menu, self.status, None).Enable(False)
+    menu.AppendSeparator()
     create_menu_item(menu, 'Check', self.on_check)
     create_menu_item(menu, 'Display tracked connections', self.list_connections)
     create_menu_item(menu, 'Add connection(s)', self.add_connections)
@@ -150,6 +153,7 @@ class TaskBarIcon(wx.TaskBarIcon):
     self.timer = Timer(600.0, self.CheckForNewSeats)
     self.timer.start()
 
+    self.status = "Last check: " + datetime.today().strftime("%d.%m.%Y %H:%M")
     return have_new_seats
 
   def on_check(self, event):
