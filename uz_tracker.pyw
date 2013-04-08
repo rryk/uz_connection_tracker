@@ -1,10 +1,10 @@
 ﻿import wx
 import pickle
-import threading
 import uz_tools
 import os.path
 import os
 import sys
+from threading import Timer
 from datetime import datetime
 from pprint import pprint
 from pytz import timezone
@@ -23,9 +23,9 @@ class TaskBarIcon(wx.TaskBarIcon):
     super(TaskBarIcon, self).__init__()
     self.set_icon(TRAY_ICON)
     self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.on_check)
+    self.timer = None
     self.LoadConnectionsToTrack()
-    t = threading.Timer(600.0, self.check_new_seats);
-    t.start()
+    self.CheckForNewSeats()
 
   def LoadConnectionsToTrack(self):
     if os.path.isfile(uz_tools.TRACKED_CONNECTIONS_FILE):
@@ -61,7 +61,7 @@ class TaskBarIcon(wx.TaskBarIcon):
   def ask_user_yes_no(prompt, msg):
     return wx.MessageBox(msg, 'UZ Tracker', wx.YES | wx.NO | wx.ICON_QUESTION) == wx.YES
 
-  def check_new_seats(self):
+  def CheckForNewSeats(self):
     # Check for new connections
     for conn_id in self.tracked_connections:
       if conn_id['num'] == 'new':
@@ -144,10 +144,16 @@ class TaskBarIcon(wx.TaskBarIcon):
     f.write(seats_serialized);
     f.close()
 
+    # Schedule next execution
+    if self.timer != None:
+      self.timer.cancel()
+    self.timer = Timer(600.0, self.CheckForNewSeats)
+    self.timer.start()
+
     return have_new_seats
 
   def on_check(self, event):
-    if not self.check_new_seats():
+    if not self.CheckForNewSeats():
       self.tell_user('No new seats available');
 
   def on_exit(self, event):
