@@ -133,7 +133,7 @@ class TaskBarIcon(wx.TaskBarIcon):
         for coach_num in new_seats.keys():
           msg += "  Coach " + str(coach_num) + " (" + new_seats[coach_num]['type'] + "): ";
           for place in new_seats[coach_num]['places']:
-            msg += str(place) + " "
+            msg += place + " "
           msg += "\n"
         have_new_seats = True
     if have_new_seats:

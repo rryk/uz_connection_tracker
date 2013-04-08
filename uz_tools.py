@@ -150,6 +150,6 @@ def load_seats_for_coach_type(conn_id, coach_type):
     );
     res[coach[u'num']] = {
       'type': coach_type,
-      'places': [int(a) for a in seats[u'places'][0]]
+      'places': seats[u'places'][0]
     }
   return res
