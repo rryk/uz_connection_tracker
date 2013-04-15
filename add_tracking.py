@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import pickle
 import os.path
 import uz_tools
@@ -11,8 +11,6 @@ def prompt(query):
 
 fromStation = uz_tools.chooseStation(prompt("From: "))
 tillStation = uz_tools.chooseStation(prompt("Till: "))
-#fromStation = chooseStation("Миколаїв")
-#toStation = chooseStation("Київ")
 date = prompt("Date: ");
 time = prompt("Time from [00:00]: ");
 if time == "":

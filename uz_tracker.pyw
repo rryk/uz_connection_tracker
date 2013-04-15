@@ -1,4 +1,4 @@
-﻿import wx
+import wx
 import pickle
 import uz_tools
 import os.path
@@ -25,6 +25,7 @@ class TaskBarIcon(wx.TaskBarIcon):
     self.Bind(wx.EVT_TASKBAR_LEFT_DOWN, self.on_check)
     self.timer = None
     self.status = "No last check"
+    self.in_check = False
     self.LoadConnectionsToTrack()
     self.CheckForNewSeats()
 
@@ -65,6 +66,16 @@ class TaskBarIcon(wx.TaskBarIcon):
     return wx.MessageBox(msg, 'UZ Tracker', wx.YES | wx.NO | wx.ICON_QUESTION) == wx.YES
 
   def CheckForNewSeats(self):
+    # Schedule next execution
+    if self.timer != None:
+      self.timer.cancel()
+    self.timer = Timer(600.0, self.CheckForNewSeats)
+    self.timer.start()
+
+    if self.in_check:
+      return False
+    self.in_check = True
+
     # Check for new connections
     for conn_id in self.tracked_connections:
       if conn_id['num'] == 'new':
@@ -147,13 +158,9 @@ class TaskBarIcon(wx.TaskBarIcon):
     f.write(seats_serialized);
     f.close()
 
-    # Schedule next execution
-    if self.timer != None:
-      self.timer.cancel()
-    self.timer = Timer(600.0, self.CheckForNewSeats)
-    self.timer.start()
-
     self.status = "Last check: " + datetime.today().strftime("%d.%m.%Y %H:%M")
+    self.in_check = False
+
     return have_new_seats
 
   def on_check(self, event):

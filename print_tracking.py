@@ -50,4 +50,6 @@ else:
       msg += conn_id["date"] + ", from "
       msg += conn_id["time"] + "."
       print msg.replace(u'\u0456', u'i')
+
+sys.stdout.write("\nPlease press Enter to continue...")
 sys.stdin.readline()
